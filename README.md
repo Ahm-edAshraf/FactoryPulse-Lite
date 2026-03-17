@@ -72,12 +72,29 @@ Sensor CSV → Preprocessing → Rolling-window features (170)
 │   ├── dashboard/          UI components & charts
 │   └── explain/            Plain-language summaries
 ├── configs/                App & model configuration (YAML)
-├── assets/                 Demo fleet data & architecture diagram
+├── assets/                 Demo fleet data, sample uploads & architecture diagram
 ├── models/                 Trained artifacts (metrics, features, config)
 ├── tests/                  Pytest test suites
-├── docs/pitch/             Slide deck & presentation script
 └── Makefile                install / test / train / app
 ```
+
+## Try It: Upload Your Own Machine
+
+The dashboard accepts any sensor CSV. Three sample files are included with different degradation profiles:
+
+| File | Machine state | What you'll see |
+|------|--------------|-----------------|
+| `assets/sample-upload-healthy.csv` | Healthy (97/100) | Stable sensors, 125+ cycles remaining |
+| `assets/sample-upload-warning.csv` | Watchlist (71/100) | Early drift, ~77 cycles remaining |
+| `assets/sample-upload-critical.csv` | Impaired (35/100) | Heavy degradation, ~17 cycles remaining |
+
+**How to try it:**
+1. Run the app (`make app`)
+2. Go to **Fleet Overview**
+3. In the sidebar, click **Upload CSV** and select one of the sample files
+4. The uploaded machine replaces the demo fleet — you'll see its health state, RUL, sensor drift, and recommended action
+
+CSV format: must have columns `unit_id`, `cycle`, `op_setting_1-3`, `sensor_1` through `sensor_21`. Minimum 15 rows.
 
 ## Tech Stack
 
