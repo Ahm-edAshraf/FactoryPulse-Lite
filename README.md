@@ -90,9 +90,10 @@ The dashboard accepts any sensor CSV. Three sample files are included with diffe
 
 **How to try it:**
 1. Run the app (`make app`)
-2. Go to **Fleet Overview**
-3. In the sidebar, click **Upload CSV** and select one of the sample files
-4. The uploaded machine replaces the demo fleet — you'll see its health state, RUL, sensor drift, and recommended action
+2. On **any page**, open the sidebar and upload a sample CSV
+3. The uploaded machine replaces the demo fleet across **all pages** — Home, Fleet Overview, Machine Detail, and Maintenance Planner all show the uploaded machine
+4. Click **↩ Reset to demo fleet** in the sidebar to go back to the 5-machine demo
+5. On Machine Detail, use the dropdown to switch between machines when viewing the demo fleet
 
 CSV format: must have columns `unit_id`, `cycle`, `op_setting_1-3`, `sensor_1` through `sensor_21`. Minimum 15 rows.
 

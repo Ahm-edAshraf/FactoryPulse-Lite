@@ -16,7 +16,7 @@ from factorypulse.dashboard.cards import (
     render_sidebar_brand,
 )
 from factorypulse.dashboard.charts import health_timeline_chart, rul_gauge_chart, sensor_trend_chart
-from factorypulse.dashboard.data import build_demo_fleet, load_app_config, load_model_metrics, resolve_window_size
+from factorypulse.dashboard.data import get_active_fleet, load_app_config, load_model_metrics, render_sidebar_upload, resolve_window_size
 from factorypulse.explain.summarize import summarize_prediction
 
 st.set_page_config(page_title="Machine Detail | FactoryPulse", page_icon="⚙️", layout="wide")
@@ -26,13 +26,33 @@ render_sidebar_brand()
 app_config = load_app_config().get("app", {})
 window_size = resolve_window_size(int(app_config.get("default_window_size", 15)))
 
+render_sidebar_upload(window_size)
+
 if "selected_machine" not in st.session_state:
     try:
-        st.session_state["selected_machine"] = build_demo_fleet(window_size=window_size)[0]
+        fleet = get_active_fleet(window_size=window_size)
+        st.session_state["selected_machine"] = fleet[0]
     except FileNotFoundError as error:
         st.error(f"Missing artifacts: {error}")
         st.caption("Run `make train` first.")
         st.stop()
+
+# Machine picker in sidebar when fleet has multiple machines
+try:
+    fleet = get_active_fleet(window_size=window_size)
+except FileNotFoundError:
+    fleet = []
+
+if len(fleet) > 1:
+    with st.sidebar:
+        st.markdown("### Select machine")
+        names = [item["display_name"] for item in fleet]
+        current = st.session_state["selected_machine"]["display_name"]
+        default_idx = names.index(current) if current in names else 0
+        chosen = st.selectbox("Machine", names, index=default_idx, label_visibility="collapsed")
+        if chosen != current:
+            st.session_state["selected_machine"] = fleet[names.index(chosen)]
+            st.rerun()
 
 selected = st.session_state["selected_machine"]
 prediction = selected["prediction"]
@@ -41,7 +61,7 @@ metrics = load_model_metrics()
 
 render_page_header(
     title=selected["display_name"],
-    subtitle=f"{selected['line_name']} · {selected['scenario']}",
+    subtitle=f"{selected['line_name']} · {selected.get('scenario', '')}",
     eyebrow="Machine detail",
     chips=[
         ("Status", prediction.health_state),
@@ -50,7 +70,6 @@ render_page_header(
     ],
 )
 
-# ── Top: badge + gauge side by side ──
 top_l, top_r = st.columns([1.2, 0.8])
 with top_l:
     st.markdown(health_badge(prediction.health_state), unsafe_allow_html=True)
@@ -59,7 +78,6 @@ with top_l:
 with top_r:
     st.plotly_chart(rul_gauge_chart(prediction.predicted_rul), use_container_width=True)
 
-# ── Metrics row ──
 c1, c2, c3 = st.columns(3)
 with c1:
     render_metric_card("Health score", f"{prediction.health_score:.0f}/100", "Proximity to healthy baseline")
@@ -72,7 +90,6 @@ with c3:
 
 st.markdown("<div style='height:0.25rem'></div>", unsafe_allow_html=True)
 
-# ── Charts side by side ──
 ch_l, ch_r = st.columns(2)
 with ch_l:
     st.markdown("## Sensor drift")
@@ -84,7 +101,6 @@ with ch_r:
     st.markdown("## Health timeline")
     st.plotly_chart(health_timeline_chart(frame, prediction.change_point), use_container_width=True)
 
-# ── Technical details collapsed ──
 with st.expander("Technical details"):
     st.caption(
         f"Validation RMSE {metrics.get('rmse', 0):.2f} · MAE {metrics.get('mae', 0):.2f} · "

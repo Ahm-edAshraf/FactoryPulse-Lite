@@ -70,7 +70,7 @@ def build_demo_fleet(window_size: int) -> list[dict]:
             }
         )
 
-    return [item for item in rank_fleet(fleet)]
+    return list(rank_fleet(fleet))
 
 
 def rank_fleet(fleet: list[dict]) -> list[dict]:
@@ -90,3 +90,52 @@ def parse_uploaded_frame(uploaded_file) -> pd.DataFrame:
 def resolve_window_size(default_window_size: int) -> int:
     metrics = load_model_metrics()
     return int(metrics.get("inference_window", default_window_size))
+
+
+def get_active_fleet(window_size: int) -> list[dict]:
+    """Return the uploaded fleet if one exists in session state, otherwise the demo fleet."""
+    import streamlit as st
+
+    if "uploaded_fleet" in st.session_state:
+        return st.session_state["uploaded_fleet"]
+
+    fleet = build_demo_fleet(window_size=window_size)
+    return fleet
+
+
+def render_sidebar_upload(window_size: int) -> None:
+    """Render upload widget + reset button in sidebar. Stores fleet in session state."""
+    import streamlit as st
+
+    with st.sidebar:
+        st.markdown("### Upload CSV")
+        uploaded_file = st.file_uploader("Single machine trajectory", type=["csv"], key="csv_upload")
+        st.caption("Try: `assets/sample-upload-critical.csv`")
+
+        if uploaded_file is not None:
+            try:
+                uploaded_frame = parse_uploaded_frame(uploaded_file)
+                prediction, roi_value = score_machine_frame(uploaded_frame, window_size=window_size)
+                uploaded_item = {
+                    "machine_id": int(prediction.machine_id),
+                    "display_name": uploaded_file.name.replace(".csv", ""),
+                    "line_name": "Uploaded machine",
+                    "scenario": "Custom upload",
+                    "frame": uploaded_frame,
+                    "prediction": prediction,
+                    "roi_value": roi_value,
+                }
+                st.session_state["uploaded_fleet"] = [uploaded_item]
+                st.session_state["selected_machine"] = uploaded_item
+            except ValueError as error:
+                st.error(f"Upload error: {error}")
+            except Exception as error:
+                st.error(f"Scoring error: {error}")
+
+        if "uploaded_fleet" in st.session_state:
+            st.markdown("---")
+            if st.button("↩ Reset to demo fleet", use_container_width=True):
+                del st.session_state["uploaded_fleet"]
+                if "selected_machine" in st.session_state:
+                    del st.session_state["selected_machine"]
+                st.rerun()

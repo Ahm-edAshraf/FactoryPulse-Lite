@@ -17,7 +17,7 @@ from factorypulse.dashboard.cards import (
     render_panel,
     render_sidebar_brand,
 )
-from factorypulse.dashboard.data import build_demo_fleet, load_app_config, resolve_window_size
+from factorypulse.dashboard.data import get_active_fleet, load_app_config, render_sidebar_upload, resolve_window_size
 
 
 def _window(state: str) -> str:
@@ -36,8 +36,10 @@ render_sidebar_brand()
 app_config = load_app_config().get("app", {})
 window_size = resolve_window_size(int(app_config.get("default_window_size", 15)))
 
+render_sidebar_upload(window_size)
+
 try:
-    fleet = build_demo_fleet(window_size=window_size)
+    fleet = get_active_fleet(window_size=window_size)
 except FileNotFoundError as error:
     st.error(f"Missing artifacts: {error}")
     st.caption("Run `make train` first.")

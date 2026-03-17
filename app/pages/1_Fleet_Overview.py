@@ -17,8 +17,7 @@ from factorypulse.dashboard.cards import (
     render_sidebar_brand,
 )
 from factorypulse.dashboard.charts import fleet_health_bar_chart
-from factorypulse.dashboard.data import build_demo_fleet, load_app_config, parse_uploaded_frame, resolve_window_size
-from factorypulse.services.scoring import score_machine_frame
+from factorypulse.dashboard.data import get_active_fleet, load_app_config, render_sidebar_upload, resolve_window_size
 
 st.set_page_config(page_title="Fleet Overview | FactoryPulse", page_icon="⚙️", layout="wide")
 apply_global_styles()
@@ -27,38 +26,14 @@ render_sidebar_brand()
 app_config = load_app_config().get("app", {})
 window_size = resolve_window_size(int(app_config.get("default_window_size", 15)))
 
-with st.sidebar:
-    st.markdown("### Upload CSV")
-    uploaded_file = st.file_uploader("Single machine trajectory", type=["csv"])
-    st.caption("Format: `assets/sample-upload.csv`")
+render_sidebar_upload(window_size)
 
-if uploaded_file is not None:
-    try:
-        uploaded_frame = parse_uploaded_frame(uploaded_file)
-        prediction, roi_value = score_machine_frame(uploaded_frame, window_size=window_size)
-    except ValueError as error:
-        st.error(f"Could not score upload: {error}")
-        st.stop()
-    except Exception as error:
-        st.error(f"Upload error: {error}")
-        st.stop()
-    st.session_state["selected_machine"] = {
-        "machine_id": prediction.machine_id,
-        "display_name": uploaded_file.name,
-        "line_name": "Uploaded machine",
-        "scenario": "Custom upload",
-        "frame": uploaded_frame,
-        "prediction": prediction,
-        "roi_value": roi_value,
-    }
-    fleet = [st.session_state["selected_machine"]]
-else:
-    try:
-        fleet = build_demo_fleet(window_size=window_size)
-    except FileNotFoundError as error:
-        st.error(f"Missing artifacts: {error}")
-        st.caption("Run `make train` first.")
-        st.stop()
+try:
+    fleet = get_active_fleet(window_size=window_size)
+except FileNotFoundError as error:
+    st.error(f"Missing artifacts: {error}")
+    st.caption("Run `make train` first.")
+    st.stop()
 
 top = fleet[0]
 st.session_state.setdefault("selected_machine", top)
@@ -99,7 +74,7 @@ with left:
         render_machine_row(
             rank=rank,
             name=item["display_name"],
-            meta=f"{item['line_name']} · {item['scenario']}",
+            meta=f"{item['line_name']} · {item.get('scenario', '')}",
             badge_html=health_badge(pred.health_state),
             rul=f"{pred.predicted_rul:.0f} cyc",
             health=f"{pred.health_score:.0f}",

@@ -17,7 +17,7 @@ from factorypulse.dashboard.cards import (
     render_sidebar_brand,
 )
 from factorypulse.dashboard.copy import APP_SUBTITLE, APP_TITLE
-from factorypulse.dashboard.data import build_demo_fleet, load_app_config, load_model_metrics, resolve_window_size
+from factorypulse.dashboard.data import get_active_fleet, load_app_config, load_model_metrics, render_sidebar_upload, resolve_window_size
 
 st.set_page_config(page_title="FactoryPulse Lite", page_icon="⚙️", layout="wide")
 apply_global_styles()
@@ -28,12 +28,16 @@ app_config = config.get("app", {})
 window_size = resolve_window_size(int(app_config.get("default_window_size", 15)))
 metrics = load_model_metrics()
 
+render_sidebar_upload(window_size)
+
 try:
-    fleet = build_demo_fleet(window_size=window_size)
+    fleet = get_active_fleet(window_size=window_size)
 except FileNotFoundError as error:
     st.error(f"Missing trained artifacts or demo data: {error}")
     st.caption("Run `make train` first, then refresh this page.")
     st.stop()
+
+is_upload = "uploaded_fleet" in st.session_state
 
 health_mix = Counter(item["prediction"].health_state for item in fleet)
 protected_value = sum(item["roi_value"] for item in fleet)
@@ -46,13 +50,13 @@ render_page_header(
     chips=[
         ("RMSE", f"{metrics.get('rmse', 0):.1f} cycles"),
         ("MAE", f"{metrics.get('mae', 0):.1f} cycles"),
-        ("Fleet", str(len(fleet))),
+        ("Fleet", f"{len(fleet)} {'(uploaded)' if is_upload else ''}"),
     ],
 )
 
 c1, c2, c3, c4 = st.columns(4)
 with c1:
-    render_metric_card("Highest risk", highest_risk["display_name"], highest_risk["scenario"])
+    render_metric_card("Highest risk", highest_risk["display_name"], highest_risk.get("scenario", ""))
 with c2:
     render_metric_card("Critical", str(health_mix.get("Critical", 0)), "Need immediate attention")
 with c3:
