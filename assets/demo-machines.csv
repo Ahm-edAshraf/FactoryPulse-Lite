@@ -1,0 +1,6 @@
+machine_id,display_name,line_name,scenario,progress_ratio,failure_cost,maintenance_cost
+1,Mixer Line A,Rural Food Processing,Stable output with slight heat creep,0.38,1200,250
+24,Packaging Motor B,Packaging Hall,Increasing vibration before holiday orders,0.56,1500,300
+52,Cold Room Compressor C,Cold Storage,Load spikes are shortening service life,0.78,2200,450
+77,Conveyor Drive D,Packaging Hall,Bearing stress is approaching failure zone,0.99,1800,350
+96,Milling Pump E,Grain Processing,Throughput is rising and wear is accelerating,0.63,1600,320

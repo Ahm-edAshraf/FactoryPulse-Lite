@@ -1,0 +1,12 @@
+app:
+  title: FactoryPulse Lite
+  subtitle: Smart maintenance without smart-factory capex
+  default_window_size: 15
+  default_failure_cost: 1500
+  default_maintenance_cost: 300
+
+health:
+  healthy_min: 75
+  watchlist_min: 50
+  impaired_min: 30
+  rul_reference: 125

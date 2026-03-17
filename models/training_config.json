@@ -1,0 +1,21 @@
+{
+  "dataset": {
+    "subset": "FD001"
+  },
+  "features": {
+    "window_size": 15,
+    "rul_cap": 125
+  },
+  "training": {
+    "validation_fraction": 0.25,
+    "random_state": 42
+  },
+  "model": {
+    "n_estimators": 250,
+    "max_depth": 6,
+    "learning_rate": 0.05,
+    "subsample": 0.9,
+    "colsample_bytree": 0.9,
+    "n_jobs": 4
+  }
+}

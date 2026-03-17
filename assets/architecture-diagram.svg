@@ -1,0 +1,70 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="700" viewBox="0 0 1200 700" role="img" aria-label="FactoryPulse Lite architecture diagram">
+  <defs>
+    <linearGradient id="bg" x1="0" x2="1">
+      <stop offset="0%" stop-color="#f5efe6"/>
+      <stop offset="100%" stop-color="#e8f0ed"/>
+    </linearGradient>
+    <style>
+      .title { font: 700 34px 'DejaVu Sans', sans-serif; fill: #1f2a2c; }
+      .label { font: 700 18px 'DejaVu Sans', sans-serif; fill: #1f2a2c; }
+      .body { font: 400 15px 'DejaVu Sans', sans-serif; fill: #465153; }
+      .pill { fill: #fffaf2; stroke: #d8cfc2; stroke-width: 2; rx: 26; }
+      .accent { fill: #fff4e8; stroke: #c76b2a; stroke-width: 3; rx: 28; }
+      .teal { fill: #eef8f6; stroke: #1c6b68; stroke-width: 3; rx: 28; }
+      .line { stroke: #586466; stroke-width: 3; marker-end: url(#arrow); }
+    </style>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto">
+      <path d="M0,0 L0,6 L9,3 z" fill="#586466" />
+    </marker>
+  </defs>
+  <rect width="1200" height="700" fill="url(#bg)"/>
+  <text x="60" y="70" class="title">FactoryPulse Lite Architecture</text>
+  <text x="60" y="105" class="body">Offline model training plus a Streamlit decision dashboard for ASEAN SME maintenance planning.</text>
+
+  <rect x="60" y="170" width="240" height="130" class="pill"/>
+  <text x="85" y="205" class="label">1. Data Sources</text>
+  <text x="85" y="235" class="body">NASA CMAPSS FD001</text>
+  <text x="85" y="260" class="body">Uploaded SME sensor CSV</text>
+  <text x="85" y="285" class="body">Vibration, temperature, load</text>
+
+  <rect x="360" y="170" width="250" height="130" class="pill"/>
+  <text x="385" y="205" class="label">2. Preprocessing</text>
+  <text x="385" y="235" class="body">Schema validation</text>
+  <text x="385" y="260" class="body">Missing value repair</text>
+  <text x="385" y="285" class="body">Rolling-window feature builder</text>
+
+  <rect x="670" y="170" width="250" height="130" class="accent"/>
+  <text x="695" y="205" class="label">3. Predictive Core</text>
+  <text x="695" y="235" class="body">XGBoost RUL regressor</text>
+  <text x="695" y="260" class="body">Change-point detection</text>
+  <text x="695" y="285" class="body">Health score + explanations</text>
+
+  <rect x="960" y="170" width="180" height="130" class="teal"/>
+  <text x="985" y="205" class="label">4. Artifacts</text>
+  <text x="985" y="235" class="body">Model binary</text>
+  <text x="985" y="260" class="body">Feature list</text>
+  <text x="985" y="285" class="body">Metrics JSON</text>
+
+  <rect x="180" y="410" width="300" height="170" class="teal"/>
+  <text x="205" y="445" class="label">5. Streamlit Dashboard</text>
+  <text x="205" y="475" class="body">Fleet overview and ranked risk queue</text>
+  <text x="205" y="500" class="body">Machine detail with sensor evidence</text>
+  <text x="205" y="525" class="body">Maintenance planner and ROI panel</text>
+  <text x="205" y="550" class="body">CSV upload for custom machine scoring</text>
+
+  <rect x="610" y="410" width="360" height="170" class="accent"/>
+  <text x="635" y="445" class="label">6. Manager Outcomes</text>
+  <text x="635" y="475" class="body">Time-to-failure countdown</text>
+  <text x="635" y="500" class="body">Healthy / Watchlist / Impaired / Critical</text>
+  <text x="635" y="525" class="body">Top sensor drivers and plain-language actions</text>
+  <text x="635" y="550" class="body">Downtime avoided and maintenance priority</text>
+
+  <line x1="300" y1="235" x2="360" y2="235" class="line"/>
+  <line x1="610" y1="235" x2="670" y2="235" class="line"/>
+  <line x1="920" y1="235" x2="960" y2="235" class="line"/>
+  <line x1="795" y1="300" x2="795" y2="410" class="line"/>
+  <line x1="1050" y1="300" x2="1050" y2="360" class="line"/>
+  <line x1="1050" y1="360" x2="480" y2="360" class="line"/>
+  <line x1="480" y1="360" x2="480" y2="410" class="line"/>
+  <line x1="480" y1="495" x2="610" y2="495" class="line"/>
+</svg>

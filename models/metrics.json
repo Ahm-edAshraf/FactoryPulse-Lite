@@ -1,0 +1,6 @@
+{
+  "rmse": 18.332095691046057,
+  "mae": 13.31158167893203,
+  "validation_samples": 4712,
+  "inference_window": 15
+}

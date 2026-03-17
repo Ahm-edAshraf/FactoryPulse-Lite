@@ -1,0 +1,39 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+*.egg
+dist/
+build/
+*.whl
+
+# Virtual environment
+.venv/
+venv/
+env/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Data (raw data is large, don't commit)
+data/raw/
+data/interim/
+
+# Model artifacts (large binary files)
+models/*.joblib
+
+# Streamlit secrets
+.streamlit/secrets.toml
+
+# Misc
+*.log
+.env
