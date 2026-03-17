@@ -67,16 +67,29 @@ def predict_machine_state(
     )
 
 
-def model_based_top_drivers(model: Any, latest_vector: pd.DataFrame, feature_columns: list[str], fallback_frame: pd.DataFrame) -> list[str]:
+def model_based_top_drivers(model: Any, _latest_vector: pd.DataFrame, feature_columns: list[str], fallback_frame: pd.DataFrame) -> list[str]:
+    sensor_drivers = top_degradation_drivers(fallback_frame)
+
     importances = getattr(model, "feature_importances_", None)
     if importances is None or len(importances) != len(feature_columns):
-        return top_degradation_drivers(fallback_frame)
+        return sensor_drivers
 
-    weighted = {}
+    importance_map: dict[str, float] = {}
     for column, importance in zip(feature_columns, importances):
-        sensor_name = column.split("_", 2)
-        base = "_".join(sensor_name[:2]) if sensor_name[0] == "sensor" else column.rsplit("_", 1)[0]
-        weighted[base] = weighted.get(base, 0.0) + abs(float(latest_vector.iloc[0][column])) * float(importance)
+        parts = column.split("_", 2)
+        base = "_".join(parts[:2]) if parts[0] == "sensor" else column.rsplit("_", 1)[0]
+        importance_map[base] = importance_map.get(base, 0.0) + float(importance)
 
-    ordered = sorted(weighted.items(), key=lambda item: item[1], reverse=True)
+    drift_scores: dict[str, float] = {}
+    sensor_cols = [c for c in fallback_frame.columns if c.startswith("sensor_")]
+    baseline_window = max(2, min(5, len(fallback_frame)))
+    baseline = fallback_frame[sensor_cols].head(baseline_window).mean()
+    latest = fallback_frame[sensor_cols].iloc[-1]
+    scale = baseline.abs().replace(0, 1.0).fillna(1.0)
+    for col in sensor_cols:
+        drift = abs(float(latest[col]) - float(baseline[col])) / float(scale[col])
+        model_weight = importance_map.get(col, 0.0)
+        drift_scores[col] = drift * (1.0 + model_weight)
+
+    ordered = sorted(drift_scores.items(), key=lambda item: item[1], reverse=True)
     return [name for name, _ in ordered[:3]]
