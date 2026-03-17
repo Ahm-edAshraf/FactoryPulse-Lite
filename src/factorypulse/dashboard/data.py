@@ -10,6 +10,7 @@ import pandas as pd
 from factorypulse.config import CONFIG_ROOT, MODEL_ROOT, RAW_DATA_ROOT, load_yaml_config
 from factorypulse.data.loaders import ensure_cmapss_files, load_cmapss_split
 from factorypulse.data.preprocessing import prepare_sensor_frame
+from factorypulse.models.infer import required_model_input_columns, required_window_size
 from factorypulse.services.scoring import score_machine_frame
 from factorypulse.services.planner import rank_machines
 
@@ -23,6 +24,13 @@ def load_model_metrics() -> dict:
     if not metrics_path.exists():
         return {}
     return json.loads(metrics_path.read_text(encoding="utf-8"))
+
+
+def load_evaluation_report() -> dict:
+    report_path = MODEL_ROOT / "evaluation_report.json"
+    if not report_path.exists():
+        return {}
+    return json.loads(report_path.read_text(encoding="utf-8"))
 
 
 def load_demo_catalog() -> pd.DataFrame:
@@ -84,12 +92,23 @@ def parse_uploaded_frame(uploaded_file) -> pd.DataFrame:
     prepared = prepare_sensor_frame(frame)
     if prepared["unit_id"].nunique() != 1:
         raise ValueError("uploaded CSV must contain exactly one machine trajectory")
+    required_columns = required_model_input_columns()
+    missing_columns = [column for column in required_columns if column not in prepared.columns]
+    if missing_columns:
+        missing_text = ", ".join(missing_columns[:8])
+        extra = "" if len(missing_columns) <= 8 else f" and {len(missing_columns) - 8} more"
+        raise ValueError(
+            "uploaded CSV must match the trained CMAPSS-compatible schema; missing columns: "
+            f"{missing_text}{extra}"
+        )
+    minimum_rows = required_window_size()
+    if len(prepared) < minimum_rows:
+        raise ValueError(f"uploaded CSV must contain at least {minimum_rows} rows for inference")
     return prepared
 
 
 def resolve_window_size(default_window_size: int) -> int:
-    metrics = load_model_metrics()
-    return int(metrics.get("inference_window", default_window_size))
+    return required_window_size(default=default_window_size)
 
 
 def get_active_fleet(window_size: int) -> list[dict]:

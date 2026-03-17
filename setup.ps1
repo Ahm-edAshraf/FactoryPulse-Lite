@@ -24,11 +24,15 @@ pip install -q -r requirements.txt
 if (-not (Test-Path "models\rul_xgb.joblib")) {
     Write-Host ""
     Write-Host "Training model (first run only, ~30 seconds)..."
-    $env:PYTHONPATH = "src"
-    python -m factorypulse.models.train_rul
+    python scripts/train.py
 }
 
-$env:PYTHONPATH = "src"
+if (-not (Test-Path "models\evaluation_report.json")) {
+    Write-Host ""
+    Write-Host "Building evaluation report..."
+    python scripts/evaluate.py
+}
+
 Write-Host ""
 Write-Host "=== Ready! ===" -ForegroundColor Green
 Write-Host "Starting dashboard..."

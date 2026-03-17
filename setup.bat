@@ -25,11 +25,15 @@ pip install -q -r requirements.txt
 if not exist "models\rul_xgb.joblib" (
     echo.
     echo Training model ^(first run only, ~30 seconds^)...
-    set PYTHONPATH=src
-    python -m factorypulse.models.train_rul
+    python scripts\train.py
 )
 
-set PYTHONPATH=src
+if not exist "models\evaluation_report.json" (
+    echo.
+    echo Building evaluation report...
+    python scripts\evaluate.py
+)
+
 echo.
 echo === Ready! ===
 echo Starting dashboard...

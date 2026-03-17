@@ -26,11 +26,17 @@ pip install -q -r requirements.txt
 if [ ! -f "models/rul_xgb.joblib" ]; then
     echo ""
     echo "Training model (first run only, ~30 seconds)..."
-    PYTHONPATH=src python -m factorypulse.models.train_rul
+    python scripts/train.py
+fi
+
+if [ ! -f "models/evaluation_report.json" ]; then
+    echo ""
+    echo "Building evaluation report..."
+    python scripts/evaluate.py
 fi
 
 echo ""
 echo "=== Ready! ==="
 echo "Starting dashboard..."
 echo ""
-PYTHONPATH=src streamlit run app/Home.py
+streamlit run app/Home.py

@@ -4,6 +4,13 @@ __pycache__/
 *$py.class
 *.egg-info/
 *.egg
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.hypothesis/
+.coverage
+.coverage.*
+htmlcov/
 dist/
 build/
 *.whl

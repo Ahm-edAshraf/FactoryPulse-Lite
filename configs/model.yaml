@@ -10,9 +10,9 @@ training:
   random_state: 42
 
 model:
-  n_estimators: 250
-  max_depth: 6
-  learning_rate: 0.05
-  subsample: 0.9
+  n_estimators: 500
+  max_depth: 4
+  learning_rate: 0.03
+  subsample: 0.95
   colsample_bytree: 0.9
   n_jobs: 4

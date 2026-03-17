@@ -1,0 +1,110 @@
+{
+  "generated_at": "2026-03-17T22:12:13.293194+00:00",
+  "dataset": {
+    "subset": "FD001",
+    "train_units": 100,
+    "test_units": 100,
+    "feature_count": 168,
+    "window_size": 15
+  },
+  "model": {
+    "name": "XGBoost RUL regressor",
+    "training_config": {
+      "dataset": {
+        "subset": "FD001"
+      },
+      "features": {
+        "window_size": 15,
+        "rul_cap": 125
+      },
+      "training": {
+        "validation_fraction": 0.25,
+        "random_state": 42
+      },
+      "model": {
+        "n_estimators": 500,
+        "max_depth": 4,
+        "learning_rate": 0.03,
+        "subsample": 0.95,
+        "colsample_bytree": 0.9,
+        "n_jobs": 4
+      }
+    }
+  },
+  "holdout_validation": {
+    "rmse": 18.231256149151932,
+    "mae": 13.467225026098951,
+    "samples": 4712
+  },
+  "official_test": {
+    "rmse": 17.668763041074758,
+    "mae": 12.964151458740234,
+    "samples": 100
+  },
+  "baselines": [
+    {
+      "rmse": 19.02416756527531,
+      "mae": 13.963576337217603,
+      "samples": 100,
+      "name": "Random Forest"
+    },
+    {
+      "rmse": 20.262551071475038,
+      "mae": 16.62034912109375,
+      "samples": 100,
+      "name": "Linear Regression"
+    },
+    {
+      "rmse": 42.47826351032852,
+      "mae": 35.913494042289415,
+      "samples": 100,
+      "name": "Mean RUL"
+    },
+    {
+      "rmse": 46.3281771711342,
+      "mae": 36.88,
+      "samples": 100,
+      "name": "Median RUL"
+    }
+  ],
+  "robustness": [
+    {
+      "scenario_id": "noise_2pct",
+      "label": "Gaussian noise at 2% of train-set sensor sigma",
+      "rmse": 19.388402428697066,
+      "mae": 14.591635627746582,
+      "delta_rmse": 1.72
+    },
+    {
+      "scenario_id": "missing_5pct",
+      "label": "Random 5% sensor gaps with forward-fill recovery",
+      "rmse": 17.668525816240674,
+      "mae": 12.713737144470215,
+      "delta_rmse": -0.0
+    },
+    {
+      "scenario_id": "dropout_3_sensors",
+      "label": "Three sensor channels stuck at their initial reading",
+      "rmse": 18.91617066546041,
+      "mae": 13.687258896827698,
+      "delta_rmse": 1.247
+    },
+    {
+      "scenario_id": "combined_shift",
+      "label": "Combined 1.5% noise plus 3% missing sensors",
+      "rmse": 18.273335019355677,
+      "mae": 13.491833535432816,
+      "delta_rmse": 0.605
+    }
+  ],
+  "latency_ms": {
+    "mean_ms": 122.06186399933358,
+    "p95_ms": 131.88085000147112,
+    "repeats": 50
+  },
+  "summary": {
+    "best_baseline_name": "Random Forest",
+    "rmse_gain_vs_best_baseline": 1.355,
+    "worst_stress_delta_rmse": 1.72
+  }
+}

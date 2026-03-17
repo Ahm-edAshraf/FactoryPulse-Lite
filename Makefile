@@ -1,18 +1,21 @@
-PYTHON := .venv/bin/python
-PIP := .venv/bin/pip
-PYTEST := .venv/bin/pytest
-STREAMLIT := .venv/bin/streamlit
+PYTHON ?= python
+PIP ?= $(PYTHON) -m pip
+PYTEST ?= $(PYTHON) -m pytest
+STREAMLIT ?= $(PYTHON) -m streamlit
 
-.PHONY: install test train app
+.PHONY: install test train evaluate app
 
 install:
 	$(PIP) install -r requirements.txt
 
 test:
-	PYTHONPATH=src $(PYTEST) -q
+	$(PYTEST) -q
 
 train:
-	PYTHONPATH=src $(PYTHON) -m factorypulse.models.train_rul
+	$(PYTHON) scripts/train.py
+
+evaluate:
+	$(PYTHON) scripts/evaluate.py
 
 app:
-	PYTHONPATH=src $(STREAMLIT) run app/Home.py
+	$(STREAMLIT) run app/Home.py

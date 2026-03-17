@@ -20,7 +20,7 @@ from factorypulse.models.health import (
     recommend_action,
     top_degradation_drivers,
 )
-from factorypulse.schemas import MachinePrediction
+from factorypulse.schemas import CMAPSS_COLUMNS, MachinePrediction
 
 
 @lru_cache(maxsize=4)
@@ -33,13 +33,34 @@ def load_model_artifacts(model_dir: str | Path | None = None) -> tuple[Any, list
     return model, feature_columns, metrics
 
 
+def required_model_input_columns(model_dir: str | Path | None = None) -> list[str]:
+    artifact_root = Path(model_dir or MODEL_ROOT)
+    feature_path = artifact_root / "feature_columns.json"
+    if not feature_path.exists():
+        return CMAPSS_COLUMNS
+
+    feature_columns = json.loads(feature_path.read_text(encoding="utf-8"))
+    base_columns = sorted({column.rsplit("_", 1)[0] for column in feature_columns})
+    return ["unit_id", "cycle", *base_columns]
+
+
+def required_window_size(model_dir: str | Path | None = None, default: int = 15) -> int:
+    artifact_root = Path(model_dir or MODEL_ROOT)
+    metrics_path = artifact_root / "metrics.json"
+    if not metrics_path.exists():
+        return default
+
+    metrics = json.loads(metrics_path.read_text(encoding="utf-8"))
+    return int(metrics.get("inference_window", default))
+
+
 def predict_machine_state(
     frame: pd.DataFrame,
     model_dir: str | Path | None = None,
     window_size: int = 15,
 ) -> MachinePrediction:
     model, feature_columns, _ = load_model_artifacts(model_dir)
-    required_columns = ["unit_id", "cycle", *sorted({column.rsplit("_", 1)[0] for column in feature_columns})]
+    required_columns = required_model_input_columns(model_dir)
     missing_columns = [column for column in required_columns if column not in frame.columns]
     if missing_columns:
         missing_text = ", ".join(missing_columns)

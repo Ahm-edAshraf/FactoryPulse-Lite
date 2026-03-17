@@ -17,7 +17,14 @@ from factorypulse.dashboard.cards import (
     render_sidebar_brand,
 )
 from factorypulse.dashboard.copy import APP_SUBTITLE, APP_TITLE
-from factorypulse.dashboard.data import get_active_fleet, load_app_config, load_model_metrics, render_sidebar_upload, resolve_window_size
+from factorypulse.dashboard.data import (
+    get_active_fleet,
+    load_app_config,
+    load_evaluation_report,
+    load_model_metrics,
+    render_sidebar_upload,
+    resolve_window_size,
+)
 
 st.set_page_config(page_title="FactoryPulse Lite", page_icon="⚙️", layout="wide")
 apply_global_styles()
@@ -27,6 +34,7 @@ config = load_app_config()
 app_config = config.get("app", {})
 window_size = resolve_window_size(int(app_config.get("default_window_size", 15)))
 metrics = load_model_metrics()
+evaluation = load_evaluation_report()
 
 render_sidebar_upload(window_size)
 
@@ -34,7 +42,7 @@ try:
     fleet = get_active_fleet(window_size=window_size)
 except FileNotFoundError as error:
     st.error(f"Missing trained artifacts or demo data: {error}")
-    st.caption("Run `make train` first, then refresh this page.")
+    st.caption("Run `python scripts/train.py` and `python scripts/evaluate.py`, then refresh this page.")
     st.stop()
 
 is_upload = "uploaded_fleet" in st.session_state
@@ -42,14 +50,16 @@ is_upload = "uploaded_fleet" in st.session_state
 health_mix = Counter(item["prediction"].health_state for item in fleet)
 protected_value = sum(item["roi_value"] for item in fleet)
 highest_risk = fleet[0]
+official = evaluation.get("official_test", {})
 
 render_page_header(
     title=APP_TITLE,
     subtitle=APP_SUBTITLE,
     eyebrow="Command center",
     chips=[
-        ("RMSE", f"{metrics.get('rmse', 0):.1f} cycles"),
-        ("MAE", f"{metrics.get('mae', 0):.1f} cycles"),
+        ("Hold-out RMSE", f"{metrics.get('rmse', 0):.1f} cycles"),
+        ("Official RMSE", f"{official.get('rmse', 0):.1f} cycles"),
+        ("Official MAE", f"{official.get('mae', 0):.1f} cycles"),
         ("Fleet", f"{len(fleet)} {'(uploaded)' if is_upload else ''}"),
     ],
 )
@@ -75,8 +85,8 @@ with left:
     render_panel(
         "What FactoryPulse does",
         "Predicts machine failures before they freeze production. "
-        "Translates raw sensor data into plain maintenance actions. "
-        "Helps ASEAN SMEs act early — no enterprise smart-factory spend required.",
+        "Translates CMAPSS-style raw sensor data into plain maintenance actions. "
+        "Helps ASEAN SMEs act early without smart-factory replacement projects.",
     )
     st.markdown("<div style='height:0.5rem'></div>", unsafe_allow_html=True)
 
@@ -97,9 +107,10 @@ with left:
 with right:
     render_panel(
         "How to navigate",
-        "Fleet Overview — see which machines need attention first. "
-        "Machine Detail — understand why a machine is degrading. "
-        "Maintenance Planner — schedule interventions and see protected value.",
+        "Fleet Overview - see which machines need attention first. "
+        "Machine Detail - understand why a machine is degrading. "
+        "Maintenance Planner - schedule interventions and see protected value. "
+        "Judging Brief - review validation, deployment, and business readiness.",
     )
     st.markdown("<div style='height:0.5rem'></div>", unsafe_allow_html=True)
     st.image("assets/architecture-diagram.svg", use_container_width=True)
