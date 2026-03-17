@@ -8,18 +8,35 @@ FactoryPulse Lite predicts machine failure before it freezes production. It read
 
 ## Quick Start
 
+### Linux / macOS
+
 ```bash
-# 1. Create a virtual environment
 python -m venv .venv && source .venv/bin/activate
+pip install -r requirements.txt
+PYTHONPATH=src python -m factorypulse.models.train_rul
+PYTHONPATH=src streamlit run app/Home.py
+```
 
-# 2. Install dependencies
-make install
+### Windows (PowerShell)
 
-# 3. Train the model (downloads NASA CMAPSS FD001 automatically)
-make train
+```powershell
+python -m venv .venv
+.venv\Scripts\Activate.ps1
+pip install -r requirements.txt
+$env:PYTHONPATH="src"
+python -m factorypulse.models.train_rul
+streamlit run app/Home.py
+```
 
-# 4. Launch the dashboard
-make app
+### Windows (CMD)
+
+```cmd
+python -m venv .venv
+.venv\Scripts\activate.bat
+pip install -r requirements.txt
+set PYTHONPATH=src
+python -m factorypulse.models.train_rul
+streamlit run app/Home.py
 ```
 
 The app opens at `http://localhost:8501`.
