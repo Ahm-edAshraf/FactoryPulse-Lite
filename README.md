@@ -8,8 +8,20 @@ FactoryPulse Lite predicts machine failure before it freezes production. It read
 
 ## Quick Start
 
-### Linux / macOS
+**One command** — installs dependencies, trains the model, and launches the dashboard:
 
+| Platform | Command |
+|----------|---------|
+| **Linux / macOS** | `bash setup.sh` |
+| **Windows (CMD)** | `setup.bat` |
+| **Windows (PowerShell)** | `powershell -ExecutionPolicy Bypass -File setup.ps1` |
+
+> Requires **Python 3.11+**. The app opens at `http://localhost:8501`.
+
+<details>
+<summary>Manual setup (step by step)</summary>
+
+**Linux / macOS:**
 ```bash
 python -m venv .venv && source .venv/bin/activate
 pip install -r requirements.txt
@@ -17,8 +29,7 @@ PYTHONPATH=src python -m factorypulse.models.train_rul
 PYTHONPATH=src streamlit run app/Home.py
 ```
 
-### Windows (PowerShell)
-
+**Windows (PowerShell):**
 ```powershell
 python -m venv .venv
 .venv\Scripts\Activate.ps1
@@ -28,8 +39,7 @@ python -m factorypulse.models.train_rul
 streamlit run app/Home.py
 ```
 
-### Windows (CMD)
-
+**Windows (CMD):**
 ```cmd
 python -m venv .venv
 .venv\Scripts\activate.bat
@@ -38,8 +48,7 @@ set PYTHONPATH=src
 python -m factorypulse.models.train_rul
 streamlit run app/Home.py
 ```
-
-The app opens at `http://localhost:8501`.
+</details>
 
 ## What It Does
 
